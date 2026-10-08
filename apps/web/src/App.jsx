@@ -52,6 +52,8 @@ function App() {
   const [showAuth, setShowAuth] = useState(false);
   const [user, setUser] = useState(null);
   const [workspace, setWorkspace] = useState(null);
+  const [workspaces, setWorkspaces] = useState([]);
+  const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false);
   const [projects, setProjects] = useState([]);
   const [activities, setActivities] = useState([]);
   const [loadingData, setLoadingData] = useState(false);
@@ -69,10 +71,11 @@ function App() {
         api('/api/tasks?limit=100', { workspaceId }),
       ]);
       const activityResult = await api('/api/activity?limit=8', { workspaceId });
+      const firstActiveProject = projectResult.projects?.find((project) => project.status === 'active');
       setProjects(projectResult.projects || []);
       setTasks((taskResult.tasks || []).map(apiTaskToRow));
       setActivities(activityResult.activities || []);
-      setForm((current) => ({ ...current, project: projectResult.projects?.[0]?._id || '' }));
+      setForm((current) => ({ ...current, project: firstActiveProject?._id || '' }));
     } catch (error) {
       setNotice(error.message);
     } finally {
@@ -85,6 +88,7 @@ function App() {
     const result = await api('/api/workspace/invitations/accept', { method: 'POST', body: { token: inviteToken } });
     window.history.replaceState({}, '', window.location.pathname);
     const session = await api('/api/auth/me');
+    setWorkspaces(session.workspaces || []);
     const joinedWorkspace = session.workspaces?.find((item) => item.id === String(result.workspace)) || session.workspaces?.[0];
     setUser(session.user);
     setWorkspace(joinedWorkspace || null);
@@ -94,9 +98,10 @@ function App() {
   }
 
   useEffect(() => {
-    api('/api/auth/me').then(({ user: currentUser, workspaces }) => {
-      const selectedWorkspace = workspaces?.[0];
+    api('/api/auth/me').then(({ user: currentUser, workspaces: available }) => {
+      const selectedWorkspace = available?.[0];
       if (!selectedWorkspace) return;
+      setWorkspaces(available || []);
       setUser(currentUser);
       setWorkspace(selectedWorkspace);
       if (inviteToken) acceptPendingInvite().catch((error) => setNotice(error.message));
@@ -106,6 +111,7 @@ function App() {
 
   function handleAuthenticated(result) {
     const selectedWorkspace = result.workspace || result.workspaces?.[0];
+    setWorkspaces(result.workspace ? [result.workspace] : result.workspaces || []);
     setUser(result.user);
     setWorkspace(selectedWorkspace || null);
     setShowAuth(false);
@@ -119,9 +125,19 @@ function App() {
     await api('/api/auth/logout', { method: 'POST' }).catch(() => {});
     setUser(null);
     setWorkspace(null);
+    setWorkspaces([]);
     setProjects([]);
     setTasks(initialTasks);
     setNotice('You have signed out.');
+  }
+
+  function switchWorkspace(nextWorkspace) {
+    setWorkspace(nextWorkspace);
+    setShowWorkspaceMenu(false);
+    setActiveNav('Overview');
+    setActiveTab('All tasks');
+    setQuery('');
+    loadWorkspaceData(nextWorkspace.id);
   }
 
   async function createProject(event) {
@@ -131,7 +147,7 @@ function App() {
       await api('/api/projects', { method: 'POST', workspaceId: workspace.id, body: projectForm });
       const result = await api('/api/projects?includeArchived=true', { workspaceId: workspace.id });
       setProjects(result.projects || []);
-      setForm((current) => ({ ...current, project: result.projects?.[0]?._id || '' }));
+      setForm((current) => ({ ...current, project: result.projects?.find((project) => project.status === 'active')?._id || '' }));
       setProjectForm({ name: '', description: '' });
       setShowProjectCreate(false);
       setNotice('Project created.');
@@ -195,7 +211,7 @@ function App() {
     <div className="app-shell">
       <aside className="sidebar">
         <div className="brand"><span className="brand-mark"><span /><span /><span /><span /></span><span>taskflow<span className="brand-pro">pro</span></span></div>
-        <button className="workspace-switch"><span className="workspace-icon">{workspace?.name?.[0]?.toUpperCase() || 'N'}</span><span className="workspace-copy"><strong>{workspace?.name || 'Nova Studio'}</strong><small>{user ? workspace?.role || 'Workspace' : 'Demo workspace'}</small></span><ChevronDown size={15} /></button>
+        <div className="workspace-switch-wrap"><button className="workspace-switch" onClick={() => user ? setShowWorkspaceMenu((open) => !open) : setShowAuth(true)} aria-expanded={showWorkspaceMenu}><span className="workspace-icon">{workspace?.name?.[0]?.toUpperCase() || 'N'}</span><span className="workspace-copy"><strong>{workspace?.name || 'Nova Studio'}</strong><small>{user ? workspace?.role || 'Workspace' : 'Demo workspace'}</small></span><ChevronDown size={15} /></button>{showWorkspaceMenu && user && <div className="workspace-switch-menu" role="menu">{workspaces.map((item) => <button role="menuitem" key={item.id} className={item.id === workspace?.id ? 'selected' : ''} onClick={() => switchWorkspace(item)}><span className="workspace-icon">{item.name?.[0]?.toUpperCase()}</span><span><strong>{item.name}</strong><small>{item.role}</small></span>{item.id === workspace?.id && <Check size={14}/>}</button>)}</div>}</div>
         <div className="side-label">WORKSPACE</div>
         <nav className="primary-nav">
           {nav.map(({ label, icon: Icon, count }) => <button key={label} className={`nav-item ${activeNav === label ? 'active' : ''}`} onClick={() => setActiveNav(label)}><Icon size={17} strokeWidth={1.8} /><span>{label}</span>{count && <span className="nav-count">{count}</span>}</button>)}
