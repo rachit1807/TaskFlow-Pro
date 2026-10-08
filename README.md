@@ -10,8 +10,25 @@ TaskFlow Pro is a MERN project-management application. Teams organize work in wo
 
 > **Try it:** Open the live app, choose **Sign in**, then **Create an account**. Registration asks for your name, email, password, and the name of your first workspace. The dashboard also includes sample data so you can preview the interface before signing in; sample data is not saved to your account.
 
+## Screenshots
+
+These screenshots show the public sample workspace in the live app. Sample data is for preview; changes are saved only after signing in.
+
+### Workspace overview
+
+![TaskFlow Pro workspace overview](docs/screenshots/dashboard.jpg)
+
+### Kanban board
+
+![TaskFlow Pro Kanban board with backlog, in progress, review, and done columns](docs/screenshots/board.jpg)
+
+### Task details and comments
+
+![TaskFlow Pro task details with status, priority, due date, and comments](docs/screenshots/task-details.jpg)
+
 ## Contents
 
+- [Screenshots](#screenshots)
 - [What you can do](#what-you-can-do)
 - [How the app fits together](#how-the-app-fits-together)
 - [How a request works](#how-a-request-works)
