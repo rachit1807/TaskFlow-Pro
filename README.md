@@ -18,6 +18,12 @@ These screenshots show the public sample workspace in the live app. Sample data 
 
 ![TaskFlow Pro workspace overview](docs/screenshots/dashboard.jpg)
 
+### Theme and account controls
+
+The sidebar provides the light/dark mode switch, workspace settings, and profile controls. On narrow screens, open the navigation drawer to see their labels.
+
+![TaskFlow Pro sidebar showing the Dark mode switch, Settings, and profile](docs/screenshots/appearance.jpg)
+
 ### Kanban board
 
 ![TaskFlow Pro Kanban board with backlog, in progress, review, and done columns](docs/screenshots/board.jpg)
