@@ -2,6 +2,8 @@
 
 **A team workspace for planning projects, assigning work, and tracking progress.**
 
+**Created by [Rachit Tripathi](https://github.com/rachit1807)** · [Portfolio](https://rachit1807.github.io/rachit-tripathi-portfolio/)
+
 [Open the live app](https://taskflow-pro-web.onrender.com/) · [View the GitHub repository](https://github.com/rachit1807/TaskFlow-Pro) · [Check API health](https://taskflow-pro-api-3nwo.onrender.com/api/health)
 
 TaskFlow Pro is a MERN project-management application. Teams organize work in workspaces, divide it into projects, and track individual tasks from backlog through completion. The app includes role-aware access, a Kanban board, comments, file attachments, team invitations, activity history, and notifications.
@@ -210,3 +212,9 @@ This version provides the working features listed above. Email delivery for invi
 ## License
 
 No open-source license is currently included. Contact the repository owner before reusing this project beyond personal evaluation.
+
+---
+
+<p align="center">
+  Designed and built with care by <a href="https://github.com/rachit1807">Rachit Tripathi</a>.
+</p>
