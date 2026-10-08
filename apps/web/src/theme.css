@@ -137,3 +137,90 @@
     transition: background-color .18s ease, color .18s ease, border-color .18s ease;
   }
 }
+
+/* Keep the sidebar usable when the browser window is short. */
+.sidebar {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.sidebar > * { flex-shrink: 0; }
+.sidebar-bottom {
+  position: sticky;
+  bottom: -15px;
+  z-index: 2;
+  flex-shrink: 0;
+  padding-top: 8px;
+  background: #fff;
+}
+.mobile-sidebar-toggle,
+.sidebar-scrim { display: none; }
+:root[data-theme='dark'] .sidebar-bottom { background: #211f30; }
+
+/* The workspace promo is secondary to the account and appearance controls. */
+@media (max-height: 850px) {
+  .sidebar .upgrade-card { display: none; }
+}
+
+@media (max-width: 660px) {
+  .mobile-sidebar-toggle {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 34px;
+    align-self: center;
+    margin: 0 0 8px;
+    padding: 0;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: #77758a;
+  }
+  .sidebar.mobile-expanded {
+    z-index: 31;
+    width: min(260px, 82vw);
+    padding: 14px 12px;
+    overflow-y: auto;
+    box-shadow: 12px 0 35px #17142630;
+  }
+  .sidebar.mobile-expanded .brand > span:last-child,
+  .sidebar.mobile-expanded .workspace-copy,
+  .sidebar.mobile-expanded .profile-copy { display: flex; }
+  .sidebar.mobile-expanded .brand > span:last-child { display: inline; }
+  .sidebar.mobile-expanded .workspace-switch > svg,
+  .sidebar.mobile-expanded .side-label,
+  .sidebar.mobile-expanded .nav-item > span,
+  .sidebar.mobile-expanded .project-heading,
+  .sidebar.mobile-expanded .project-links,
+  .sidebar.mobile-expanded .upgrade-card,
+  .sidebar.mobile-expanded .profile-row > svg { display: initial; }
+  .sidebar.mobile-expanded .project-heading { display: flex; }
+  .sidebar.mobile-expanded .project-links { display: grid; }
+  .sidebar.mobile-expanded .upgrade-card { display: block; }
+  .sidebar.mobile-expanded .workspace-switch {
+    justify-content: flex-start;
+    height: 55px;
+    margin-bottom: 20px;
+    padding: 8px;
+    border: 1px solid #ececf2;
+  }
+  .sidebar.mobile-expanded .nav-item {
+    justify-content: flex-start;
+    padding: 0 10px;
+  }
+  .sidebar.mobile-expanded .profile-row {
+    justify-content: flex-start;
+    padding: 14px 5px 1px;
+  }
+  .sidebar-scrim {
+    display: block;
+    position: fixed;
+    z-index: 30;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #17142670;
+  }
+  :root[data-theme='dark'] .sidebar-scrim { background: #080711a8; }
+}

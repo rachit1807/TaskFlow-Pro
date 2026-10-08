@@ -3,7 +3,7 @@ import {
   Activity, ArrowDown, ArrowDownUp, ArrowRight, ArrowUpRight, Bell, CalendarDays,
   Check, CheckCheck, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Clock3,
   Command, Filter, FolderKanban, Kanban, LayoutDashboard, ListTodo, LogIn, MoreHorizontal, Plus,
-  Search, Settings2, SlidersHorizontal, Sparkles, Sun, Moon, Users, X
+  Search, Settings2, SlidersHorizontal, Sparkles, Sun, Moon, Menu, Users, X
 } from 'lucide-react';
 import { API_URL, api } from './api.js';
 import AuthModal from './AuthModal.jsx';
@@ -41,6 +41,7 @@ function apiTaskToRow(task) {
 function App() {
   const today = new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).format(new Date()).toUpperCase();
   const [theme, setTheme] = useState(() => window.localStorage.getItem('taskflow-theme') === 'dark' ? 'dark' : 'light');
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [activeNav, setActiveNav] = useState('Overview');
   const [activeTab, setActiveTab] = useState('All tasks');
   const [query, setQuery] = useState('');
@@ -70,6 +71,14 @@ function App() {
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#171625' : '#f8f9fc');
     window.localStorage.setItem('taskflow-theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    const collapseSidebarOnWideScreen = () => {
+      if (window.innerWidth > 660) setSidebarExpanded(false);
+    };
+    window.addEventListener('resize', collapseSidebarOnWideScreen);
+    return () => window.removeEventListener('resize', collapseSidebarOnWideScreen);
+  }, []);
 
   async function loadWorkspaceData(workspaceId) {
     setLoadingData(true);
@@ -145,6 +154,7 @@ function App() {
     setShowWorkspaceMenu(false);
     setActiveNav('Overview');
     setActiveTab('All tasks');
+    setSidebarExpanded(false);
     setQuery('');
     loadWorkspaceData(nextWorkspace.id);
   }
@@ -218,16 +228,18 @@ function App() {
 
   return (
     <div className="app-shell">
-      <aside className="sidebar">
+      {sidebarExpanded && <button className="sidebar-scrim" aria-label="Close navigation" onClick={() => setSidebarExpanded(false)} />}
+      <aside className={`sidebar ${sidebarExpanded ? 'mobile-expanded' : ''}`}>
+        <button className="mobile-sidebar-toggle" aria-label="Open full navigation" onClick={() => setSidebarExpanded((open) => !open)}><Menu size={18} /></button>
         <div className="brand"><span className="brand-mark"><span /><span /><span /><span /></span><span>taskflow<span className="brand-pro">pro</span></span></div>
         <div className="workspace-switch-wrap"><button className="workspace-switch" onClick={() => user ? setShowWorkspaceMenu((open) => !open) : setShowAuth(true)} aria-expanded={showWorkspaceMenu}><span className="workspace-icon">{workspace?.name?.[0]?.toUpperCase() || 'N'}</span><span className="workspace-copy"><strong>{workspace?.name || 'Nova Studio'}</strong><small>{user ? workspace?.role || 'Workspace' : 'Demo workspace'}</small></span><ChevronDown size={15} /></button>{showWorkspaceMenu && user && <div className="workspace-switch-menu" role="menu">{workspaces.map((item) => <button role="menuitem" key={item.id} className={item.id === workspace?.id ? 'selected' : ''} onClick={() => switchWorkspace(item)}><span className="workspace-icon">{item.name?.[0]?.toUpperCase()}</span><span><strong>{item.name}</strong><small>{item.role}</small></span>{item.id === workspace?.id && <Check size={14}/>}</button>)}</div>}</div>
         <div className="side-label">WORKSPACE</div>
         <nav className="primary-nav">
-          {nav.map(({ label, icon: Icon, count }) => <button key={label} className={`nav-item ${activeNav === label ? 'active' : ''}`} onClick={() => setActiveNav(label)}><Icon size={17} strokeWidth={1.8} /><span>{label}</span>{count && <span className="nav-count">{count}</span>}</button>)}
+          {nav.map(({ label, icon: Icon, count }) => <button key={label} className={`nav-item ${activeNav === label ? 'active' : ''}`} onClick={() => { setActiveNav(label); setSidebarExpanded(false); }}><Icon size={17} strokeWidth={1.8} /><span>{label}</span>{count && <span className="nav-count">{count}</span>}</button>)}
         </nav>
         <div className="project-heading"><span className="side-label">YOUR PROJECTS</span><button aria-label="Add project" onClick={() => user ? setShowProjectCreate(true) : setShowAuth(true)}><Plus size={16} /></button></div>
-        <div className="project-links">{(user ? projects.map((project) => ({ id: project._id, name: project.name, color: project.color })) : [{ name: 'Website redesign', color: 'purple' }, { name: 'Mobile app', color: 'orange' }, { name: 'Growth campaign', color: 'green' }]).map((project) => <button key={project.id || project.name} className={selectedProjectId === project.id ? 'selected-project' : ''} onClick={() => { if (project.id) { setSelectedProjectId(project.id); setActiveNav('Board'); } else setShowAuth(true); }}><span className={`project-dot ${project.color}`} />{project.name}</button>)}<button className="add-project" onClick={() => user ? setShowProjectCreate(true) : setShowAuth(true)}><Plus size={14} />Add project</button></div>
-        <div className="sidebar-bottom"><div className="upgrade-card"><div className="upgrade-icon"><Sparkles size={16} /></div><strong>Make space for great work</strong><p>Invite your team and keep every project moving.</p><button onClick={() => user ? setActiveNav('Team') : setShowAuth(true)}>Explore workspace <ArrowRight size={13} /></button></div><button className="nav-item" onClick={() => setTheme((current) => current === 'light' ? 'dark' : 'light')} aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`} title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}>{theme === 'light' ? <Moon size={17} /> : <Sun size={17} />}<span>{theme === 'light' ? 'Dark mode' : 'Light mode'}</span></button><button className={`nav-item ${activeNav === 'Settings' ? 'active' : ''}`} onClick={() => user ? setActiveNav('Settings') : setShowAuth(true)}><Settings2 size={17} /><span>Settings</span></button><button className="profile-row profile-button" onClick={() => user ? signOut() : setShowAuth(true)}><Avatar initials={user?.name?.split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase() || 'RT'} color="blue" /><span className="profile-copy"><strong>{user?.name || 'Rachit Tripathi'}</strong><small>{user ? 'Sign out' : 'Sign in to save your work'}</small></span><MoreHorizontal size={18} /></button></div>
+        <div className="project-links">{(user ? projects.map((project) => ({ id: project._id, name: project.name, color: project.color })) : [{ name: 'Website redesign', color: 'purple' }, { name: 'Mobile app', color: 'orange' }, { name: 'Growth campaign', color: 'green' }]).map((project) => <button key={project.id || project.name} className={selectedProjectId === project.id ? 'selected-project' : ''} onClick={() => { setSidebarExpanded(false); if (project.id) { setSelectedProjectId(project.id); setActiveNav('Board'); } else setShowAuth(true); }}><span className={`project-dot ${project.color}`} />{project.name}</button>)}<button className="add-project" onClick={() => user ? setShowProjectCreate(true) : setShowAuth(true)}><Plus size={14} />Add project</button></div>
+        <div className="sidebar-bottom"><div className="upgrade-card"><div className="upgrade-icon"><Sparkles size={16} /></div><strong>Make space for great work</strong><p>Invite your team and keep every project moving.</p><button onClick={() => { setSidebarExpanded(false); user ? setActiveNav('Team') : setShowAuth(true); }}>Explore workspace <ArrowRight size={13} /></button></div><button className="nav-item" onClick={() => { setTheme((current) => current === 'light' ? 'dark' : 'light'); setSidebarExpanded(false); }} aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`} title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}>{theme === 'light' ? <Moon size={17} /> : <Sun size={17} />}<span>{theme === 'light' ? 'Dark mode' : 'Light mode'}</span></button><button className={`nav-item ${activeNav === 'Settings' ? 'active' : ''}`} onClick={() => { setSidebarExpanded(false); user ? setActiveNav('Settings') : setShowAuth(true); }}><Settings2 size={17} /><span>Settings</span></button><button className="profile-row profile-button" onClick={() => { setSidebarExpanded(false); user ? signOut() : setShowAuth(true); }}><Avatar initials={user?.name?.split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase() || 'RT'} color="blue" /><span className="profile-copy"><strong>{user?.name || 'Rachit Tripathi'}</strong><small>{user ? 'Sign out' : 'Sign in to save your work'}</small></span><MoreHorizontal size={18} /></button></div>
       </aside>
 
       <main className="main-area">
