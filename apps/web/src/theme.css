@@ -1,0 +1,139 @@
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --ink: #eeedf7;
+  --muted: #aaa8bd;
+  --line: #343246;
+  --surface: #211f30;
+  background: #171625;
+  color: var(--ink);
+}
+
+:root[data-theme='dark'] body { background: #171625; color: #eeedf7; }
+:root[data-theme='dark'] .sidebar,
+:root[data-theme='dark'] .workspace-switch,
+:root[data-theme='dark'] .panel,
+:root[data-theme='dark'] .stat-card,
+:root[data-theme='dark'] .board-panel,
+:root[data-theme='dark'] .board-task,
+:root[data-theme='dark'] .workspace-view,
+:root[data-theme='dark'] .project-overview-card,
+:root[data-theme='dark'] .task-detail-modal,
+:root[data-theme='dark'] .create-modal,
+:root[data-theme='dark'] .auth-modal,
+:root[data-theme='dark'] .notification-popover,
+:root[data-theme='dark'] .notification-item,
+:root[data-theme='dark'] .workspace-switch-menu,
+:root[data-theme='dark'] .workspace-switch-menu button,
+:root[data-theme='dark'] .role-cell select,
+:root[data-theme='dark'] .form-label input,
+:root[data-theme='dark'] .form-label select,
+:root[data-theme='dark'] .form-label textarea,
+:root[data-theme='dark'] .settings-panel input,
+:root[data-theme='dark'] .invite-link-box input,
+:root[data-theme='dark'] .comment-form,
+:root[data-theme='dark'] .comment-form textarea {
+  background-color: #211f30;
+  color: #eeedf7;
+}
+
+:root[data-theme='dark'] .topbar { background: rgba(33, 31, 48, .92); }
+:root[data-theme='dark'] .upgrade-card { background: linear-gradient(145deg, #27243a, #211f30); }
+:root[data-theme='dark'] .board-column { background: #1b1a29; }
+:root[data-theme='dark'] .table-header,
+:root[data-theme='dark'] .member-head { background: #252337; }
+:root[data-theme='dark'] .search-trigger,
+:root[data-theme='dark'] .tool-button,
+:root[data-theme='dark'] .table-footer,
+:root[data-theme='dark'] .button-secondary { background: #28263a; color: #d9d7e8; }
+:root[data-theme='dark'] .inline-search input,
+:root[data-theme='dark'] .priority-filter select { background: transparent; color: #eeedf7; }
+:root[data-theme='dark'] .invite-link-box input { background: #1b1a29; }
+
+:root[data-theme='dark'] .brand,
+:root[data-theme='dark'] .breadcrumbs strong,
+:root[data-theme='dark'] .welcome-row h1,
+:root[data-theme='dark'] .stat-value,
+:root[data-theme='dark'] .panel-heading h2,
+:root[data-theme='dark'] .task-name strong,
+:root[data-theme='dark'] .activity-item p strong,
+:root[data-theme='dark'] .task-detail-modal > h2,
+:root[data-theme='dark'] .comments-heading h3,
+:root[data-theme='dark'] .comment-author strong,
+:root[data-theme='dark'] .board-heading h2,
+:root[data-theme='dark'] .board-column-heading strong,
+:root[data-theme='dark'] .board-task h3,
+:root[data-theme='dark'] .task-title-link,
+:root[data-theme='dark'] .board-task-title,
+:root[data-theme='dark'] .settings-section-heading strong,
+:root[data-theme='dark'] .auth-modal h2,
+:root[data-theme='dark'] .project-overview-card h3,
+:root[data-theme='dark'] .workspace-metrics strong,
+:root[data-theme='dark'] .member-person strong,
+:root[data-theme='dark'] .workspace-switch-menu strong,
+:root[data-theme='dark'] .notification-head > span,
+:root[data-theme='dark'] .notification-item strong { color: #eeedf7; }
+
+:root[data-theme='dark'] .nav-item,
+:root[data-theme='dark'] .project-links button,
+:root[data-theme='dark'] .task-row,
+:root[data-theme='dark'] .activity-item p,
+:root[data-theme='dark'] .board-owner,
+:root[data-theme='dark'] .board-project,
+:root[data-theme='dark'] .member-row,
+:root[data-theme='dark'] .task-detail-description,
+:root[data-theme='dark'] .comment-item p,
+:root[data-theme='dark'] .role-cell select { color: #c2bfd2; }
+
+:root[data-theme='dark'] .workspace-copy small,
+:root[data-theme='dark'] .profile-copy small,
+:root[data-theme='dark'] .side-label,
+:root[data-theme='dark'] .page-subtitle,
+:root[data-theme='dark'] .stat-top,
+:root[data-theme='dark'] .stat-foot,
+:root[data-theme='dark'] .breadcrumbs,
+:root[data-theme='dark'] .activity-item small,
+:root[data-theme='dark'] .panel-heading p,
+:root[data-theme='dark'] .board-heading p,
+:root[data-theme='dark'] .settings-section-heading span,
+:root[data-theme='dark'] .auth-subtitle,
+:root[data-theme='dark'] .project-overview-card > p,
+:root[data-theme='dark'] .project-progress,
+:root[data-theme='dark'] .member-person small,
+:root[data-theme='dark'] .workspace-switch-menu small,
+:root[data-theme='dark'] .notification-item small,
+:root[data-theme='dark'] .notification-item time { color: #aaa8bd; }
+
+:root[data-theme='dark'] .topbar,
+:root[data-theme='dark'] .sidebar,
+:root[data-theme='dark'] .panel,
+:root[data-theme='dark'] .stat-card,
+:root[data-theme='dark'] .board-panel,
+:root[data-theme='dark'] .workspace-view,
+:root[data-theme='dark'] .board-task,
+:root[data-theme='dark'] .task-detail-modal,
+:root[data-theme='dark'] .create-modal,
+:root[data-theme='dark'] .auth-modal,
+:root[data-theme='dark'] .notification-popover,
+:root[data-theme='dark'] .workspace-switch,
+:root[data-theme='dark'] .project-overview-card,
+:root[data-theme='dark'] .comment-form,
+:root[data-theme='dark'] .attachment-row { border-color: #37354a; }
+
+:root[data-theme='dark'] .nav-item:hover,
+:root[data-theme='dark'] .project-links button:hover,
+:root[data-theme='dark'] .workspace-switch-menu button:hover,
+:root[data-theme='dark'] .workspace-switch-menu button.selected,
+:root[data-theme='dark'] .notification-item:hover,
+:root[data-theme='dark'] .profile-button:hover { background: #2b2940; }
+:root[data-theme='dark'] .nav-item.active { color: #c6bcff; background: #332d53; }
+:root[data-theme='dark'] .nav-item.active svg { color: #aa9aff; }
+:root[data-theme='dark'] .modal-backdrop { background: #080711a8; }
+:root[data-theme='dark'] .form-error { background: #382626; border-color: #633a3a; color: #ffaaa0; }
+:root[data-theme='dark'] .button-primary { border-color: #6d5add; }
+
+@media (prefers-reduced-motion: no-preference) {
+  :root, body, .sidebar, .topbar, .panel, .stat-card, .board-panel,
+  .workspace-view, .task-detail-modal, .create-modal, .auth-modal {
+    transition: background-color .18s ease, color .18s ease, border-color .18s ease;
+  }
+}
