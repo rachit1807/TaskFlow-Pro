@@ -15,10 +15,7 @@ services:
       - key: MONGODB_URI
         sync: false
       - key: CLIENT_ORIGIN
-        fromService:
-          type: web
-          name: taskflow-pro-web
-          envVarKey: RENDER_EXTERNAL_URL
+        value: https://taskflow-pro-web.onrender.com
 
   - type: web
     name: taskflow-pro-web
