@@ -7,8 +7,8 @@ TaskFlow Pro is a multi-workspace project and task management app built with Mon
 - Email and password registration, sign-in, sign-out, and session lookup. Passwords are hashed and sessions use secure HTTP-only cookies.
 - Workspace membership with owner, admin, manager, and employee roles, plus expiring invitation links.
 - Projects with descriptions, status counts, and archive/restore.
-- Tasks with descriptions, priority, due dates, labels, status, project, assignees, filters, search, pagination, and archive.
-- Kanban board with status changes, task detail and comments.
+- Tasks with descriptions, priority, due dates, labels, status, project, assignees, priority filters, search, pagination, and archive.
+- Kanban board with status changes, task detail editing, comments, and private file attachments (PDF, images, text/CSV, ZIP, and Office documents up to 5 MB).
 - Workspace activity history and in-app notifications for assignments and comments.
 - Responsive dashboard, project and team views, and sample data for a non-authenticated preview.
 - API health endpoint at `/api/health`.
@@ -37,7 +37,7 @@ apps/api       Express API, authentication, workspace and product routes
 packages/shared Shared task statuses and priorities
 ```
 
-The API is workspace-scoped: authenticated requests to workspace resources include `X-Workspace-Id`, and the server checks membership and role permissions before returning or changing data. MongoDB models define users, memberships, workspaces, projects, tasks, comments, activities, notifications, and invitations.
+The API is workspace-scoped: authenticated requests to workspace resources include `X-Workspace-Id`, and the server checks membership and role permissions before returning or changing data. MongoDB models define users, memberships, workspaces, projects, tasks, attachments, comments, activities, notifications, and invitations. Attachments are stored in MongoDB and are protected by workspace membership checks.
 
 ## Environment variables
 

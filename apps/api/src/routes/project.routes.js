@@ -47,6 +47,7 @@ router.patch('/:projectId', requireWorkspaceRole('owner', 'admin', 'manager'), a
   if (!mongoose.isValidObjectId(request.params.projectId)) return response.status(400).json({ error: { message: 'Project ID is invalid.' } });
   const parsed = updateSchema.safeParse(request.body);
   if (!parsed.success || Object.keys(parsed.data || {}).length === 0) return response.status(400).json({ error: { message: 'Provide valid project fields to update.', details: parsed.error?.flatten().fieldErrors } });
+  if (parsed.data.lead && (!mongoose.isValidObjectId(parsed.data.lead) || !(await Membership.exists({ workspace: request.workspace._id, user: parsed.data.lead })))) return response.status(400).json({ error: { message: 'The project lead must be a member of this workspace.' } });
   const project = await Project.findOneAndUpdate({ _id: request.params.projectId, workspace: request.workspace._id }, { $set: parsed.data }, { new: true, runValidators: true });
   if (!project) return response.status(404).json({ error: { message: 'Project not found.' } });
   await Activity.create({ workspace: request.workspace._id, actor: request.user._id, entityType: 'project', entityId: project._id, action: 'project.updated', details: { fields: Object.keys(parsed.data) } });

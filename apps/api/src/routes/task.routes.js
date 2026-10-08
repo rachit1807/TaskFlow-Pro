@@ -91,6 +91,7 @@ router.patch('/:taskId', async (request, response) => {
   const elevated = ['owner', 'admin', 'manager'].includes(request.membership.role);
   const canEdit = elevated || task.createdBy.equals(request.user._id) || task.assignees.some((id) => id.equals(request.user._id));
   if (!canEdit) return response.status(403).json({ error: { message: 'You can update tasks assigned to you or created by you.' } });
+  if (!elevated && (Object.hasOwn(changes, 'project') || Object.hasOwn(changes, 'assignees'))) return response.status(403).json({ error: { message: 'Only workspace managers can change a task project or its assignees.' } });
   const changedFields = Object.keys(changes);
   const previousAssignees = task.assignees.map((id) => id.toString());
   Object.assign(task, changes);
@@ -108,8 +109,12 @@ router.patch('/:taskId', async (request, response) => {
 
 router.post('/:taskId/archive', async (request, response) => {
   if (!mongoose.isValidObjectId(request.params.taskId)) return response.status(400).json({ error: { message: 'Task ID is invalid.' } });
-  const task = await Task.findOneAndUpdate({ _id: request.params.taskId, workspace: request.workspace._id, archivedAt: null }, { $set: { archivedAt: new Date() } }, { new: true });
+  const task = await Task.findOne({ _id: request.params.taskId, workspace: request.workspace._id, archivedAt: null });
   if (!task) return response.status(404).json({ error: { message: 'Task not found.' } });
+  const elevated = ['owner', 'admin', 'manager'].includes(request.membership.role);
+  if (!elevated && !task.createdBy.equals(request.user._id)) return response.status(403).json({ error: { message: 'Only workspace managers or the task creator can archive this task.' } });
+  task.archivedAt = new Date();
+  await task.save();
   await Activity.create({ workspace: request.workspace._id, actor: request.user._id, entityType: 'task', entityId: task._id, action: 'task.archived' });
   return response.status(204).end();
 });

@@ -11,6 +11,7 @@ import workspaceRouter from './routes/workspace.routes.js';
 import commentRouter from './routes/comment.routes.js';
 import notificationRouter from './routes/notification.routes.js';
 import activityRouter from './routes/activity.routes.js';
+import attachmentRouter from './routes/attachment.routes.js';
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/projects', projectRouter);
 app.use('/api/tasks', taskRouter);
 app.use('/api/tasks/:taskId/comments', commentRouter);
+app.use('/api/tasks/:taskId/attachments', attachmentRouter);
 app.use('/api/workspace', workspaceRouter);
 app.use('/api/notifications', notificationRouter);
 app.use('/api/activity', activityRouter);

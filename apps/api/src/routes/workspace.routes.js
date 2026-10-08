@@ -56,7 +56,7 @@ router.patch('/members/:membershipId', requireWorkspace, requireWorkspaceRole('o
   if (!parsed.success) return response.status(400).json({ error: { message: 'Choose a valid workspace role.' } });
   const membership = await Membership.findOne({ _id: request.params.membershipId, workspace: request.workspace._id });
   if (!membership) return response.status(404).json({ error: { message: 'Workspace member not found.' } });
-  if (membership.role === 'owner' || (request.membership.role !== 'owner' && parsed.data.role === 'admin')) return response.status(403).json({ error: { message: 'Only the workspace owner can manage owner or admin access.' } });
+  if (membership.role === 'owner' || (request.membership.role !== 'owner' && (membership.role === 'admin' || parsed.data.role === 'admin'))) return response.status(403).json({ error: { message: 'Only the workspace owner can manage owner or admin access.' } });
   membership.role = parsed.data.role;
   await membership.save();
   await Activity.create({ workspace: request.workspace._id, actor: request.user._id, entityType: 'member', entityId: membership._id, action: 'member.role_changed', details: { role: membership.role } });
@@ -67,7 +67,7 @@ router.delete('/members/:membershipId', requireWorkspace, requireWorkspaceRole('
   if (!mongoose.isValidObjectId(request.params.membershipId)) return response.status(400).json({ error: { message: 'Membership ID is invalid.' } });
   const membership = await Membership.findOne({ _id: request.params.membershipId, workspace: request.workspace._id });
   if (!membership) return response.status(404).json({ error: { message: 'Workspace member not found.' } });
-  if (membership.role === 'owner') return response.status(403).json({ error: { message: 'The workspace owner cannot be removed.' } });
+  if (membership.role === 'owner' || (membership.role === 'admin' && request.membership.role !== 'owner')) return response.status(403).json({ error: { message: 'Only the workspace owner can remove an admin.' } });
   await membership.deleteOne();
   await Activity.create({ workspace: request.workspace._id, actor: request.user._id, entityType: 'member', entityId: membership._id, action: 'member.removed', details: { userId: membership.user } });
   return response.status(204).end();
