@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: taskflow-pro-api
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm ci
+    startCommand: npm run start --workspace=@taskflow/api
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MONGODB_URI
+        sync: false
+      - key: CLIENT_ORIGIN
+        fromService:
+          type: web
+          name: taskflow-pro-web
+          envVarKey: RENDER_EXTERNAL_URL
+
+  - type: web
+    name: taskflow-pro-web
+    runtime: static
+    buildCommand: npm ci && npm run build --workspace=@taskflow/web
+    staticPublishPath: apps/web/dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: taskflow-pro-api
+          envVarKey: RENDER_EXTERNAL_URL

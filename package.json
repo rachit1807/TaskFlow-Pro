@@ -1,0 +1,13 @@
+{
+  "name": "taskflow-pro",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "workspaces": ["apps/api", "apps/web", "packages/shared"],
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "build": "npm run build -w @taskflow/web",
+    "start": "npm run start -w @taskflow/api"
+  },
+  "devDependencies": {}
+}
