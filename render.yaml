@@ -22,9 +22,7 @@ services:
     runtime: static
     buildCommand: npm ci && npm run build --workspace=@taskflow/web
     staticPublishPath: apps/web/dist
-    envVars:
-      - key: VITE_API_URL
-        fromService:
-          type: web
-          name: taskflow-pro-api
-          envVarKey: RENDER_EXTERNAL_URL
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://taskflow-pro-api-3nwo.onrender.com/api/*

@@ -63,19 +63,19 @@ Supported attachment types include PDF, common image formats, text/CSV, ZIP, and
 ```mermaid
 flowchart LR
     Person[Team member] --> Browser[React + Vite web app]
-    Browser -->|HTTPS, JSON, session cookie| API[Express API]
+    Browser -->|Same-origin HTTPS /api request + session cookie| WebHost[Render static site]
+    WebHost -->|Rewrite /api/*| API[Express API]
     API --> Auth[Authentication middleware]
     Auth --> Access[Workspace membership and role checks]
     Access --> Models[Mongoose models]
     Models --> DB[(MongoDB Atlas)]
     API -->|JSON response| Browser
-    Browser -->|Render static site| WebHost[Render]
-    API -->|Render web service| ApiHost[Render]
-    WebHost -.->|serves| Browser
+    WebHost -.->|serves frontend and forwards /api/*| Browser
+    API -->|Render web service| ApiHost[Render API service]
     ApiHost -.->|runs| API
 ```
 
-The browser handles the interface and sends requests to the API. The API validates inputs, authenticates the user, checks access to the selected workspace, and reads or writes records in MongoDB. The frontend and backend are deployed separately so each can be built and served for its role.
+The browser handles the interface and sends same-origin `/api` requests through the Render static site's rewrite to the separately deployed API. The API validates inputs, authenticates the user, checks access to the selected workspace, and reads or writes records in MongoDB. Keeping API requests on the web app's origin lets Safari and other browsers use the HTTP-only session cookie reliably on Render's shared hosting domains.
 
 ### Sign-in and workspace request flow
 
@@ -87,13 +87,13 @@ sequenceDiagram
     participant M as MongoDB
 
     U->>W: Register with name, email, password, workspace name
-    W->>A: POST /api/auth/register
+    W->>A: Same-origin POST /api/auth/register
     A->>A: Validate fields and hash password
     A->>M: Save user, workspace, and owner membership
     M-->>A: Records saved
     A-->>W: Set HTTP-only session cookie
     U->>W: View or update workspace data
-    W->>A: API request + session cookie + workspace ID
+    W->>A: Same-origin API request + session cookie + workspace ID
     A->>A: Verify session and workspace membership/role
     A->>M: Read or update permitted records
     M-->>A: Workspace data
@@ -102,7 +102,7 @@ sequenceDiagram
 
 ## How a request works
 
-1. The frontend sends an API request with the browser's session cookie. Workspace-scoped requests include the selected workspace ID in the `X-Workspace-Id` header.
+1. The frontend sends a same-origin `/api` request with the browser's HTTP-only session cookie. Workspace-scoped requests include the selected workspace ID in the `X-Workspace-Id` header. In production, Render rewrites `/api/*` to the API service; local Vite development proxies `/api` to port 4000.
 2. Authentication middleware verifies the signed session and loads the user.
 3. Workspace middleware finds that user's membership in the requested workspace. Role-protected routes check whether the role permits the operation.
 4. The route validates the request, performs the operation through Mongoose, and returns JSON.
@@ -183,7 +183,7 @@ The sample dashboard can be viewed without a database connection. Registration, 
 | Variable | Purpose | Local example |
 | --- | --- | --- |
 | `PORT` | API port | `4000` |
-| `CLIENT_ORIGIN` | Frontend origin allowed to make credentialed API requests | `http://localhost:5173` |
+| `CLIENT_ORIGIN` | Allowed frontend origin for direct API requests | `http://localhost:5173` |
 | `MONGODB_URI` | MongoDB connection string | `mongodb://127.0.0.1:27017/taskflow_pro` |
 | `JWT_SECRET` | Secret used to sign session tokens; use a unique value of 32+ characters | Replace the example value |
 | `NODE_ENV` | Runtime environment | `development` |
@@ -192,7 +192,7 @@ Keep `.env` private. Do not put database credentials or production secrets in so
 
 ## Deploy it
 
-The repository includes a [`render.yaml`](render.yaml) Blueprint for the React static site and Express API. The running deployment is:
+The repository includes a [`render.yaml`](render.yaml) Blueprint for the React static site and Express API. The web app sends same-origin API requests through a Render rewrite, so browser session cookies remain first-party. The running deployment is:
 
 - **Web app:** [taskflow-pro-web.onrender.com](https://taskflow-pro-web.onrender.com/)
 - **API health:** [taskflow-pro-api-3nwo.onrender.com/api/health](https://taskflow-pro-api-3nwo.onrender.com/api/health)
