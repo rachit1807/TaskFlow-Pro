@@ -3,7 +3,7 @@ import { TASK_STATUSES } from '@taskflow/shared';
 
 const statusClass = (status) => status.toLowerCase().replaceAll(' ', '-');
 
-export default function BoardView({ tasks, onMove, onSelect }) {
+export default function BoardView({ tasks, projectName, onMove, onSelect }) {
   function handleDrop(event, status) {
     event.preventDefault();
     const taskId = event.dataTransfer.getData('text/taskflow-task');
@@ -11,7 +11,7 @@ export default function BoardView({ tasks, onMove, onSelect }) {
   }
 
   return <section className="board-panel" aria-label="Kanban board">
-    <div className="board-heading"><div><span className="modal-kicker">PROJECT WORKFLOW</span><h2>Task board</h2><p>Move a task between stages by dragging its card or changing its status.</p></div><span className="board-count">{tasks.length} tasks</span></div>
+    <div className="board-heading"><div><span className="modal-kicker">PROJECT WORKFLOW</span><h2>{projectName || 'Task board'}</h2><p>Move a task between stages by dragging its card or changing its status.</p></div><span className="board-count">{tasks.length} tasks</span></div>
     <div className="board-columns">{TASK_STATUSES.map((status) => {
       const items = tasks.filter((task) => task.status === status);
       return <div key={status} className={`board-column ${statusClass(status)}`} onDragOver={(event) => event.preventDefault()} onDrop={(event) => handleDrop(event, status)}>
