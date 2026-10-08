@@ -75,4 +75,12 @@ router.get('/me', requireAuth, async (request, response) => {
   return response.json({ user: request.user.toSafeObject(), workspaces: memberships.map(({ workspace, role }) => ({ id: workspace.id, name: workspace.name, slug: workspace.slug, role })) });
 });
 
+router.patch('/profile', requireAuth, async (request, response) => {
+  const parsed = z.object({ name: z.string().trim().min(2).max(80) }).safeParse(request.body);
+  if (!parsed.success) return response.status(400).json({ error: { message: 'Enter a name between 2 and 80 characters.' } });
+  request.user.name = parsed.data.name;
+  await request.user.save();
+  return response.json({ user: request.user.toSafeObject() });
+});
+
 export default router;

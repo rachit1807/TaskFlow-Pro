@@ -83,3 +83,18 @@ export function ProjectsView({ projects, workspace, onCreate, onRefresh, onNotic
   }
   return <section className="workspace-view"><div className="workspace-view-heading"><div><span className="modal-kicker">YOUR WORK</span><h2>Projects</h2><p>Keep team goals, tasks, and milestones organized.</p></div><button className="button button-primary" onClick={onCreate}><Plus size={15}/>New project</button></div>{error && <p className="form-error" role="alert">{error}</p>}{projects.length ? <div className="project-card-grid">{projects.map((project) => <article className="project-overview-card" key={project._id}><div className="project-overview-top"><span className={`project-icon ${project.color}`}><FolderKanban size={18}/></span><button className="icon-button" onClick={() => archive(project)} aria-label={project.status === 'archived' ? 'Restore project' : 'Archive project'}><MoreHorizontal size={17}/></button></div><h3>{project.name}</h3><p>{project.description || 'No description yet.'}</p><div className="project-progress"><span><strong>{Object.values(project.taskCounts || {}).reduce((sum, count) => sum + count, 0)}</strong> tasks</span><span>{project.status === 'archived' ? 'Archived' : 'Active'}</span></div><div className="project-counts">{['Backlog', 'In Progress', 'In Review', 'Done'].map((status) => <span key={status}>{status}: <strong>{project.taskCounts?.[status] || 0}</strong></span>)}</div><button className="project-open" onClick={() => onNotice(`Select the Board view to manage tasks in ${project.name}.`)}>Open project <ArrowUpRight size={13}/></button></article>)}</div> : <div className="workspace-empty project-empty"><FolderKanban size={24}/><strong>No projects yet</strong><span>Create a project to start organizing work.</span><button className="button button-primary" onClick={onCreate}><Plus size={15}/>Create project</button></div>}</section>;
 }
+
+export function SettingsView({ user, onUserUpdate, onNotice }) {
+  const [name, setName] = useState(user?.name || '');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  useEffect(() => setName(user?.name || ''), [user?.name]);
+  async function saveProfile(event) {
+    event.preventDefault(); setBusy(true); setError('');
+    try {
+      const result = await api('/api/auth/profile', { method: 'PATCH', body: { name } });
+      onUserUpdate(result.user); onNotice('Profile updated.');
+    } catch (requestError) { setError(requestError.message); } finally { setBusy(false); }
+  }
+  return <section className="workspace-view"><div className="workspace-view-heading"><div><span className="modal-kicker">PREFERENCES</span><h2>Settings</h2><p>Manage your profile details for TaskFlow Pro.</p></div></div><form className="panel settings-panel" onSubmit={saveProfile}><div className="settings-section-heading"><strong>Profile</strong><span>Your name is visible to workspace teammates.</span></div><label className="form-label">Full name<input required minLength={2} maxLength={80} value={name} onChange={(event) => setName(event.target.value)}/></label><label className="form-label">Email address<input disabled value={user?.email || ''}/></label>{error && <p className="form-error" role="alert">{error}</p>}<button className="button button-primary" disabled={busy || name.trim() === user?.name}>{busy ? 'Saving…' : 'Save profile'}</button></form></section>;
+}
