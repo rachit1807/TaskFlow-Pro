@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowUpRight, Check, Copy, FolderKanban, MailPlus, MoreHorizontal, Plus, Users, X } from 'lucide-react';
+import { ArrowUpRight, Check, Copy, FolderKanban, MailPlus, MoreHorizontal, Plus, Trash2, Users, X } from 'lucide-react';
 import { api } from './api.js';
 
 const initials = (name = '') => name.split(/\s+/).slice(0, 2).map((part) => part[0] || '').join('').toUpperCase();
@@ -74,6 +74,17 @@ export function TeamView({ workspace, user, onNotice }) {
 
 export function ProjectsView({ projects, workspace, onCreate, onOpenProject, onRefresh, onNotice }) {
   const [error, setError] = useState('');
+  const [menuProjectId, setMenuProjectId] = useState(null);
+
+  useEffect(() => {
+    if (!menuProjectId) return undefined;
+    const closeMenu = (event) => {
+      if (!event.target.closest('.project-actions')) setMenuProjectId(null);
+    };
+    document.addEventListener('pointerdown', closeMenu);
+    return () => document.removeEventListener('pointerdown', closeMenu);
+  }, [menuProjectId]);
+
   async function archive(project) {
     try {
       await api(`/api/projects/${project._id}/archive`, { method: 'POST', workspaceId: workspace.id });
@@ -81,7 +92,19 @@ export function ProjectsView({ projects, workspace, onCreate, onOpenProject, onR
       onNotice(project.status === 'archived' ? 'Project restored.' : 'Project archived.');
     } catch (requestError) { setError(requestError.message); }
   }
-  return <section className="workspace-view"><div className="workspace-view-heading"><div><span className="modal-kicker">YOUR WORK</span><h2>Projects</h2><p>Keep team goals, tasks, and milestones organized.</p></div><button className="button button-primary" onClick={onCreate}><Plus size={15}/>New project</button></div>{error && <p className="form-error" role="alert">{error}</p>}{projects.length ? <div className="project-card-grid">{projects.map((project) => <article className="project-overview-card" key={project._id}><div className="project-overview-top"><span className={`project-icon ${project.color}`}><FolderKanban size={18}/></span><button className="icon-button" onClick={() => archive(project)} aria-label={project.status === 'archived' ? 'Restore project' : 'Archive project'}><MoreHorizontal size={17}/></button></div><h3>{project.name}</h3><p>{project.description || 'No description yet.'}</p><div className="project-progress"><span><strong>{Object.values(project.taskCounts || {}).reduce((sum, count) => sum + count, 0)}</strong> tasks</span><span>{project.status === 'archived' ? 'Archived' : 'Active'}</span></div><div className="project-counts">{['Backlog', 'In Progress', 'In Review', 'Done'].map((status) => <span key={status}>{status}: <strong>{project.taskCounts?.[status] || 0}</strong></span>)}</div><button className="project-open" onClick={() => onOpenProject?.(project)}>Open project <ArrowUpRight size={13}/></button></article>)}</div> : <div className="workspace-empty project-empty"><FolderKanban size={24}/><strong>No projects yet</strong><span>Create a project to start organizing work.</span><button className="button button-primary" onClick={onCreate}><Plus size={15}/>Create project</button></div>}</section>;
+  async function deleteProject(project) {
+    const confirmed = window.confirm(`Permanently delete “${project.name}”? This cannot be undone.`);
+    if (!confirmed) return;
+    setError('');
+    try {
+      await api(`/api/projects/${project._id}`, { method: 'DELETE', workspaceId: workspace.id });
+      await onRefresh();
+      onNotice('Project permanently deleted.');
+    } catch (requestError) { setError(requestError.message); }
+  }
+
+  const canDelete = ['owner', 'admin'].includes(workspace?.role);
+  return <section className="workspace-view"><div className="workspace-view-heading"><div><span className="modal-kicker">YOUR WORK</span><h2>Projects</h2><p>Keep team goals, tasks, and milestones organized.</p></div><button className="button button-primary" onClick={onCreate}><Plus size={15}/>New project</button></div>{error && <p className="form-error" role="alert">{error}</p>}{projects.length ? <div className="project-card-grid">{projects.map((project) => <article className="project-overview-card" key={project._id}><div className="project-overview-top"><span className={`project-icon ${project.color}`}><FolderKanban size={18}/></span><div className="project-actions"><button className="icon-button" onClick={() => setMenuProjectId((current) => current === project._id ? null : project._id)} aria-label={`Actions for ${project.name}`} aria-expanded={menuProjectId === project._id}><MoreHorizontal size={17}/></button>{menuProjectId === project._id && <div className="project-actions-menu" role="menu"><button role="menuitem" onClick={() => { setMenuProjectId(null); archive(project); }}>{project.status === 'archived' ? 'Restore project' : 'Archive project'}</button>{canDelete && <button className="danger" role="menuitem" onClick={() => { setMenuProjectId(null); deleteProject(project); }}><Trash2 size={13}/>Delete permanently</button>}</div>}</div></div><h3>{project.name}</h3><p>{project.description || 'No description yet.'}</p><div className="project-progress"><span><strong>{Object.values(project.taskCounts || {}).reduce((sum, count) => sum + count, 0)}</strong> tasks</span><span>{project.status === 'archived' ? 'Archived' : 'Active'}</span></div><div className="project-counts">{['Backlog', 'In Progress', 'In Review', 'Done'].map((status) => <span key={status}>{status}: <strong>{project.taskCounts?.[status] || 0}</strong></span>)}</div><button className="project-open" onClick={() => onOpenProject?.(project)}>Open project <ArrowUpRight size={13}/></button></article>)}</div> : <div className="workspace-empty project-empty"><FolderKanban size={24}/><strong>No projects yet</strong><span>Create a project to start organizing work.</span><button className="button button-primary" onClick={onCreate}><Plus size={15}/>Create project</button></div>}</section>;
 }
 
 export function SettingsView({ user, onUserUpdate, onNotice }) {

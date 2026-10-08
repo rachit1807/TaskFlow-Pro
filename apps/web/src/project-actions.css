@@ -1,0 +1,42 @@
+.project-actions {
+  position: relative;
+}
+
+.project-actions-menu {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 158px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 12px 32px #28224424;
+}
+
+.project-actions-menu button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 7px;
+  border: 0;
+  border-radius: 5px;
+  padding: 8px 9px;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  font-size: 9px;
+}
+
+.project-actions-menu button:hover {
+  background: #f4f2fb;
+}
+
+.project-actions-menu button.danger {
+  color: #bd4545;
+}
+
+:root[data-theme='dark'] .project-actions-menu button:hover {
+  background: #302d42;
+}

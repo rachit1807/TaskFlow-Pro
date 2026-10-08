@@ -62,4 +62,16 @@ router.post('/:projectId/archive', requireWorkspaceRole('owner', 'admin', 'manag
   return response.json({ project });
 });
 
+router.delete('/:projectId', requireWorkspaceRole('owner', 'admin'), async (request, response) => {
+  if (!mongoose.isValidObjectId(request.params.projectId)) return response.status(400).json({ error: { message: 'Project ID is invalid.' } });
+  const project = await Project.findOne({ _id: request.params.projectId, workspace: request.workspace._id });
+  if (!project) return response.status(404).json({ error: { message: 'Project not found.' } });
+  if (await Task.exists({ project: project._id, workspace: request.workspace._id })) {
+    return response.status(409).json({ error: { message: 'This project still has tasks. Move or remove its tasks before permanently deleting it.' } });
+  }
+  await Activity.create({ workspace: request.workspace._id, actor: request.user._id, entityType: 'project', entityId: project._id, action: 'project.deleted', details: { name: project.name } });
+  await Project.deleteOne({ _id: project._id, workspace: request.workspace._id });
+  return response.json({ deleted: true, projectId: project.id });
+});
+
 export default router;

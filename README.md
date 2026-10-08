@@ -48,7 +48,7 @@ These screenshots show the public sample workspace in the live app. Sample data 
 | Workspaces | Create a workspace during registration, switch between memberships, and manage the team |
 | Roles | Owner, admin, manager, and employee roles, with server-side permission checks |
 | Invitations | Invite a teammate by email and role with a single-use, expiring invite link |
-| Projects | Create projects, view task counts, and archive or restore projects |
+| Projects | Create projects, view task counts, archive or restore projects, and permanently delete empty projects as an owner or admin |
 | Tasks | Create and edit tasks with descriptions, assignees, status, priority, due dates, labels, and project association |
 | Finding work | Search tasks, filter by priority or status, and use paginated task results in the API |
 | Board | Move work through the Kanban workflow and open tasks for more detail |
